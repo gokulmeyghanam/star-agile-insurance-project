@@ -1,4 +1,4 @@
-name: Trigger Jenkins Job
+name: Java with Nexus Repository
 
 on:
   push:
@@ -7,18 +7,26 @@ on:
     branches: [ "main" ] # Trigger on pull requests to 'main' branch
 
 jobs:
-  trigger_jenkins:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+  build:
 
-      - name: Trigger Jenkins Job
-        uses: jenkinsci/jenkins-plugin@v1.0.0
-        with:
-          jenkins_url: 'http://52.66.249.21:8080/' # Replace with your Jenkins server URL
-          jenkins_user: 'CloudEngineLabs' # Replace with your Jenkins username
-          jenkins_token: ${{ secrets.JENKINS_TOKEN }} # Use a GitHub Secret for your Jenkins API Token
-          job_name: 'GitHub_Trigger' # Replace with the name of your Jenkins job
-          wait_for_job: 'true' # Wait for the Jenkins job to complete
-          fail_if_job_failed: 'true' 
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+    - name: Build with Maven
+      run: mvn package --file pom.xml
+    - name: Nexus Repo Publish
+      uses: sonatype-nexus-community/nexus-repo-github-action@master
+      with:
+        serverUrl: http://65.2.141.37:8081
+        username: admin
+        password: ${{ secrets.password }}
+        format: maven2
+        repository: maven-releases
+        coordinates: groupId=com.example artifactId=app version=1.0.0
+        assets: extension=jar
+        filename: ./target/app-1.0.0.jar
