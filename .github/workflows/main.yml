@@ -2,9 +2,8 @@ name: Java with Nexus Repository
 
 on:
   push:
-    branches: [ "main" ] # Trigger on push to 'main' branch
-  pull_request:
-    branches: [ "main" ] # Trigger on pull requests to 'main' branch
+    branches: [ "master" ] # Trigger on push to 'main' branch
+ 
 
 jobs:
   build:
